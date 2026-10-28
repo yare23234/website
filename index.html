@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ada Pesan Penting Buat Kamu! 💌</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelPink: '#FFD1DC',
+                        softPink: '#FFB6C1',
+                        hotPink: '#FF69B4',
+                        pastelPurple: '#E6E6FA',
+                        creamYellow: '#FFFDD0',
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ffe6ea 0%, #ffe3f1 50%, #f0e6ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Animated Floating Background Elements */
+        .bg-heart {
+            position: fixed;
+            color: rgba(255, 182, 193, 0.4);
+            animation: floatUp linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Bounce Soft Animation */
+        @keyframes softBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce-soft {
+            animation: softBounce 2s infinite ease-in-out;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(255, 182, 193, 0.3);
+        }
+
+        /* No Button Runaway Effect */
+        #btnNo {
+            transition: all 0.15s ease-out;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffe3f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb6c1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4 relative min-h-screen pb-16">
+
+    <!-- Floating Background Hearts Container -->
+    <div id="heartContainer" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Floating Trigger Button for Photo Customizer Panel -->
+    <button onclick="toggleCustomizer()" 
+            class="fixed top-4 right-4 z-50 bg-white/90 hover:bg-white text-pink-600 px-4 py-2.5 rounded-full shadow-lg border-2 border-pink-200 font-fredoka text-sm font-semibold flex items-center gap-2 transition hover:scale-105 active:scale-95 backdrop-blur-md">
+        <i class="fa-solid fa-wand-magic-sparkles text-pink-500"></i>
+        <span>Custom Foto & Pesan ⚙️</span>
+    </button>
+
+    <!-- Photo & Caption Customizer Modal Panel -->
+    <div id="customizerModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card bg-white/95 rounded-3xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl relative border-2 border-pink-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-pink-100 mb-4">
+                <h3 class="font-fredoka text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-images text-pink-500"></i>
+                    <span>Kustomisasi Foto & Gombalan</span>
+                </h3>
+                <button onclick="toggleCustomizer()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-gray-500 mb-4">
+                Unggah foto kamu/crush kamu sendiri & ganti kalimat gombalan serta tujuan nomor WhatsApp!
+            </p>
+
+            <!-- WhatsApp Custom Settings Section -->
+            <div class="mb-5 p-3.5 bg-pink-100/60 rounded-2xl border border-pink-200 space-y-3">
+                <h4 class="font-fredoka text-sm font-bold text-pink-700 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i>
+                    <span>Pengaturan Balasan WhatsApp</span>
+                </h4>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Nomor WhatsApp Tujuan (format 628...)</label>
+                    <input type="tel" id="customWaPhone" placeholder="Contoh: 6282371338944" 
+                           class="w-full px-3 py-2 text-xs rounded-xl border border-pink-200 focus:outline-none focus:border-pink-500 bg-white font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Pesan Otomatis Balasan</label>
+                    <textarea id="customWaMessage" rows="2" placeholder="Pesan yang dikirim crush ke WA kamu..." 
+                              class="w-full px-3 py-2 text-xs rounded-xl border border-pink-200 focus:outline-none focus:border-pink-500 bg-white resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Dynamic Upload Slots Container -->
+            <div id="customizerSlots" class="space-y-4 mb-6">
+                <!-- Slots generated dynamically via JS -->
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-between pt-3 border-t border-pink-100 gap-2">
+                <button onclick="resetToDefaultPhotos()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-fredoka text-xs font-semibold transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset Default
+                </button>
+                <button onclick="saveCustomizations()" class="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-fredoka text-sm font-bold shadow-md hover:shadow-pink-200 transition">
+                    <i class="fa-solid fa-check mr-1"></i> Simpan Perubahan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-lg mx-auto z-10 my-auto">
+        
+        <!-- Interactive Confession Card -->
+        <div id="questionCard" class="glass-card rounded-3xl p-6 sm:p-8 text-center transition-all duration-500 transform hover:scale-[1.01]">
+            
+            <!-- Cute Header Badge -->
+            <div class="inline-flex items-center gap-2 bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold mb-4 shadow-sm">
+                <i class="fa-solid fa-sparkles text-pink-500 animate-spin"></i>
+                <span>Ada Pesan Khusus Buat Kamu</span>
+                <i class="fa-solid fa-heart text-pink-500"></i>
+            </div>
+
+            <!-- Title Header -->
+            <h1 class="font-fredoka text-2xl sm:text-3xl font-bold text-gray-800 mb-4 leading-snug">
+                Halo Kamu yang Paling Lucu! 💖
+            </h1>
+
+            <!-- Interactive Cute Photo Frame -->
+            <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 border-4 border-white shadow-md bg-pink-50 group">
+                <!-- Frame Images Carousel -->
+                <img id="carouselImg" src="input_file_0.png" 
+                     alt="Foto Imut" 
+                     class="w-full h-full object-cover transition-all duration-500">
+                
+                <!-- Overlay Sticker / Quote -->
+                <div class="absolute bottom-2 left-2 right-2 bg-black/40 backdrop-blur-md text-white text-xs sm:text-sm py-1.5 px-3 rounded-xl flex items-center justify-between">
+                    <span id="photoCaption">Kenapa sih gemes banget? 🥺</span>
+                    <button onclick="nextPhoto()" class="bg-white/20 hover:bg-white/40 p-1.5 rounded-lg transition active:scale-95 flex items-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span class="text-[10px]">Foto Lain</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confession Text Message -->
+            <div class="bg-pink-50/80 rounded-2xl p-4 mb-6 text-gray-700 text-sm sm:text-base leading-relaxed border border-pink-100 text-left relative">
+                <i class="fa-solid fa-quote-left text-pink-300 text-2xl absolute -top-3 left-3"></i>
+                <p class="pt-2 italic">
+                    "Sebenarnya aku udah lama mau ngomong ini... Kamu itu ibarat kuah bakso hangat pas hujan, selalu berhasil bikin hariku mendadak adem dan gembira. Mau gak kita melangkah lebih jauh?"
+                </p>
+            </div>
+
+            <!-- Big Main Question -->
+            <h2 class="font-fredoka text-xl sm:text-2xl font-bold text-pink-600 mb-6 bounce-soft">
+                Kamu Mau Gak Jadi Pacar Aku? 🥺👉👈
+            </h2>
+
+            <!-- Action Interactive Buttons Container -->
+            <div id="buttonArea" class="flex flex-col sm:flex-row items-center justify-center gap-4 min-h-[120px] relative">
+                
+                <!-- YES BUTTON -->
+                <button id="btnYes" onclick="acceptConfession()" 
+                        class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-fredoka font-semibold text-lg rounded-2xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-heart text-white text-xl"></i>
+                    <span>Mau Banget! 💕</span>
+                </button>
+
+                <!-- NO BUTTON (Interactive Runaway Button) -->
+                <button id="btnNo" 
+                        class="w-full sm:w-auto px-8 py-3.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-fredoka font-semibold text-lg rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2">
+                    <span>Engga Ah 😜</span>
+                </button>
+
+            </div>
+
+            <!-- Secret Funny Counter / Hint -->
+            <p id="funnyHint" class="text-xs text-gray-400 mt-4 opacity-0 transition-opacity duration-300">
+                Psst... Tombol "Engga Ah" lagi males diklik tuh! 😉
+            </p>
+
+        </div>
+
+        <!-- SUCCESS SCREEN CARD (Hidden Initially) -->
+        <div id="successCard" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden transform transition-all duration-700">
+            
+            <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 bounce-soft">
+                <i class="fa-solid fa-face-kiss-wink-heart text-5xl text-pink-500"></i>
+            </div>
+
+            <h1 class="font-fredoka text-3xl font-bold text-pink-600 mb-2">
+                HURRAYYY! 🎉🥳
+            </h1>
+            
+            <p class="font-fredoka text-lg text-gray-800 font-semibold mb-4">
+                Akhirnya! Makasih ya udah mau nampung aku 💖
+            </p>
+
+            <div class="bg-pink-50 rounded-2xl p-4 mb-6 border border-pink-200 text-gray-700 text-sm sm:text-base space-y-2">
+                <p> official mulai detik ini kita resmi berpasangan! 📜✨</p>
+                <p class="text-xs text-gray-500">Dilarang mengembalikan barang yang sudah dibeli / diterima ya! 😜</p>
+            </div>
+
+            <!-- Animated Cute GIF Placeholder / Frame -->
+            <div class="rounded-2xl overflow-hidden mb-6 border-4 border-white shadow-md">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNndicXlzNWlyY241M3RhN2tybnc3OHQ4NHp3ZjBsM3F2czdzczJrayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KkxdeC3ed28p0nS614/giphy.gif" 
+                     alt="Happy Celebration" 
+                     class="w-full h-48 object-cover">
+            </div>
+
+            <!-- WhatsApp Direct Button -->
+            <a id="waLink" href="#" target="_blank" 
+               class="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-fredoka font-bold text-lg rounded-2xl shadow-lg hover:shadow-emerald-200 transition transform hover:-translate-y-1 active:scale-95">
+                <i class="fa-brands fa-whatsapp text-2xl"></i>
+                <span>Kabarin Aku di WhatsApp Now! 📲</span>
+            </a>
+
+            <button onclick="resetApp()" class="mt-4 text-xs text-gray-400 hover:text-gray-600 underline">
+                Ulangi dari awal
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        /* --- Photo Carousel Setup with Sent User Photos --- */
+        const defaultPhotos = [
+            {
+                url: "input_file_0.png",
+                caption: "Kenapa sih gemes banget? 🥺✨"
+            },
+            {
+                url: "input_file_1.png",
+                caption: "Stok lucunya abis di kamu ya? 💖"
+            },
+            {
+                url: "input_file_2.png",
+                caption: "Tatapan kamu bahaya banget buat hatiku 😵‍💫💗"
+            },
+            {
+                url: "input_file_3.png",
+                caption: "Muka jahat tapi kok bikin kangen? 😜 Dimana-mana ada kamu!"
+            }
+        ];
+
+        const defaultWaPhone = "6282371338944";
+        const defaultWaMessage = "Halo! Aku udah buka websitenya... Dan jawabannya: MAU BANGET JADI PACAR KAMU! 💕🥳";
+
+        let photos = JSON.parse(JSON.stringify(defaultPhotos));
+        let waPhone = defaultWaPhone;
+        let waMessage = defaultWaMessage;
+        let currentPhotoIndex = 0;
+
+        function updateDisplayPhoto() {
+            if (photos.length === 0) return;
+            const imgEl = document.getElementById('carouselImg');
+            const captionEl = document.getElementById('photoCaption');
+            
+            imgEl.style.opacity = '0.3';
+            setTimeout(() => {
+                imgEl.src = photos[currentPhotoIndex].url;
+                captionEl.textContent = photos[currentPhotoIndex].caption;
+                imgEl.style.opacity = '1';
+            }, 150);
+        }
+
+        function nextPhoto() {
+            if (photos.length === 0) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            updateDisplayPhoto();
+        }
+
+        /* --- Customizer Modal & Upload Logic --- */
+        function toggleCustomizer() {
+            const modal = document.getElementById('customizerModal');
+            if (modal.classList.contains('hidden')) {
+                // Populate WhatsApp Input values
+                document.getElementById('customWaPhone').value = waPhone;
+                document.getElementById('customWaMessage').value = waMessage;
+
+                renderCustomizerSlots();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderCustomizerSlots() {
+            const container = document.getElementById('customizerSlots');
+            container.innerHTML = '';
+
+            photos.forEach((photo, idx) => {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'p-3 bg-pink-50/70 rounded-2xl border border-pink-100 flex flex-col sm:flex-row items-center gap-3';
+                slotDiv.innerHTML = `
+                    <div class="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 border-white shadow-sm bg-white">
+                        <img id="customPreview_${idx}" src="${photo.url}" class="w-full h-full object-cover">
+                        <label for="customFileInput_${idx}" class="absolute inset-0 bg-black/40 hover:bg-black/60 flex items-center justify-center text-white cursor-pointer opacity-80 transition">
+                            <i class="fa-solid fa-camera text-lg"></i>
+                        </label>
+                        <input type="file" id="customFileInput_${idx}" accept="image/*" class="hidden" onchange="handleImageUpload(event, ${idx})">
+                    </div>
+                    <div class="w-full flex-1 space-y-2">
+                        <label class="block text-xs font-bold text-gray-600">Pesan / Gombalan Slide #${idx + 1}</label>
+                        <input type="text" id="customCaptionInput_${idx}" value="${photo.caption}" 
+                               class="w-full px-3 py-1.5 text-xs rounded-xl border border-pink-200 focus:outline-none focus:border-pink-500 bg-white">
+                    </div>
+                `;
+                container.appendChild(slotDiv);
+            });
+        }
+
+        function handleImageUpload(event, index) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newUrl = e.target.result;
+                    photos[index].url = newUrl;
+                    const previewImg = document.getElementById(`customPreview_${index}`);
+                    if (previewImg) previewImg.src = newUrl;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveCustomizations() {
+            // Save WhatsApp Custom Settings
+            const phoneInput = document.getElementById('customWaPhone').value.trim();
+            const messageInput = document.getElementById('customWaMessage').value.trim();
+
+            if (phoneInput) {
+                // Clean non-numeric characters
+                waPhone = phoneInput.replace(/[^0-9]/g, '');
+            }
+            if (messageInput) {
+                waMessage = messageInput;
+            }
+
+            photos.forEach((photo, idx) => {
+                const inputCap = document.getElementById(`customCaptionInput_${idx}`);
+                if (inputCap) {
+                    photo.caption = inputCap.value || photo.caption;
+                }
+            });
+            currentPhotoIndex = 0;
+            updateDisplayPhoto();
+            toggleCustomizer();
+        }
+
+        function resetToDefaultPhotos() {
+            photos = JSON.parse(JSON.stringify(defaultPhotos));
+            waPhone = defaultWaPhone;
+            waMessage = defaultWaMessage;
+            
+            document.getElementById('customWaPhone').value = waPhone;
+            document.getElementById('customWaMessage').value = waMessage;
+
+            currentPhotoIndex = 0;
+            renderCustomizerSlots();
+            updateDisplayPhoto();
+        }
+
+        /* --- Floating Hearts Background --- */
+        function createFloatingHearts() {
+            const container = document.getElementById('heartContainer');
+            const heartIcons = ['fa-heart', 'fa-heart-pulse', 'fa-sparkles', 'fa-heart font-solid'];
+            const heartCount = 18;
+
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('i');
+                const randomIcon = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.className = `fa-solid ${randomIcon} bg-heart`;
+                
+                // Random position and timing
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.fontSize = `${Math.random() * 20 + 12}px`;
+                heart.style.animationDuration = `${Math.random() * 6 + 6}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(heart);
+            }
+        }
+
+        /* --- Tricky "Engga Ah" Button Logic --- */
+        const btnNo = document.getElementById('btnNo');
+        const funnyHint = document.getElementById('funnyHint');
+        let escapeCount = 0;
+
+        function dodgeButton() {
+            escapeCount++;
+            
+            if (escapeCount >= 2) {
+                funnyHint.style.opacity = '1';
+            }
+
+            // Get viewport boundaries inside card or page
+            const card = document.getElementById('questionCard').getBoundingClientRect();
+            const btnWidth = btnNo.offsetWidth;
+            const btnHeight = btnNo.offsetHeight;
+
+            // Compute random relative offset
+            const maxX = (card.width / 2) - (btnWidth / 2) - 20;
+            const maxY = (card.height / 2) - (btnHeight / 2) - 20;
+
+            const randomX = (Math.random() - 0.5) * maxX * 2;
+            const randomY = (Math.random() - 0.5) * maxY * 2;
+
+            btnNo.style.transform = `translate(${randomX}px, ${randomY}px) scale(${Math.max(0.6, 1 - escapeCount * 0.05)})`;
+            
+            // Play funny bounce sound effect
+            playBoingSound();
+        }
+
+        // Desktop Hover and Touch support
+        btnNo.addEventListener('mouseenter', dodgeButton);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            dodgeButton();
+        });
+        btnNo.addEventListener('click', dodgeButton);
+
+        /* --- Audio Synthesis using Web Audio API --- */
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBoingSound() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+                
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                // Audio might be blocked before user interaction
+            }
+        }
+
+        function playVictoryMelody() {
+            try {
+                initAudio();
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C5, E5, G5, C6, E6, G6
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+                    
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.1 + 0.3);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(audioCtx.currentTime + idx * 0.1);
+                    osc.stop(audioCtx.currentTime + idx * 0.1 + 0.3);
+                });
+            } catch(e) {}
+        }
+
+        /* --- Accept Confession ("Mau Banget!") Action --- */
+        function acceptConfession() {
+            playVictoryMelody();
+            
+            // Trigger Confetti Blast
+            triggerConfetti();
+
+            // Hide Question Card and Show Success Card
+            const qCard = document.getElementById('questionCard');
+            const sCard = document.getElementById('successCard');
+
+            qCard.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                qCard.classList.add('hidden');
+                sCard.classList.remove('hidden');
+                setTimeout(() => {
+                    sCard.classList.remove('opacity-0', 'scale-95');
+                }, 50);
+            }, 300);
+
+            // Prepare WhatsApp link with custom number and message
+            const encodedMessage = encodeURIComponent(waMessage);
+            const waBtn = document.getElementById('waLink');
+            
+            if (waPhone) {
+                waBtn.href = `https://wa.me/${waPhone}?text=${encodedMessage}`;
+            } else {
+                waBtn.href = `https://api.whatsapp.com/send?text=${encodedMessage}`;
+            }
+        }
+
+        /* --- Confetti Animation --- */
+        function triggerConfetti() {
+            const count = 200;
+            const defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+                colors: ['#ff69b4', '#ffb6c1']
+            });
+            fire(0.2, {
+                spread: 60,
+                colors: ['#ffffff', '#ff1493']
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                colors: ['#ffe6ea', '#e6e6fa']
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+        }
+
+        /* --- Reset Action --- */
+        function resetApp() {
+            location.reload();
+        }
+
+        // Initialize Floating Animation on Load
+        window.onload = function() {
+            createFloatingHearts();
+        };
+    </script>
+</body>
+</html>
